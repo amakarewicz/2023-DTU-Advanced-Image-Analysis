@@ -7,12 +7,13 @@ from torchgeometry.losses import dice
 from torch.utils.data import DataLoader
 # custom modules
 import data
-# TODO: import model
+import model
 #%% set up
 root_dir = './EM_ISBI_Challenge/'
 batch_size = 16
-# lr = 0.0001
-# epochs = 10
+lr = 0.0001
+epochs = 10
+num_channels = 8
 
 if torch.cuda.is_available():
     device = torch.device("cuda:0")
@@ -40,7 +41,6 @@ data_train = data.DataHandler(
     return_patches=True,
     img_trans=img_trans,
     lab_trans=lab_trans)
-
 #%%
 train_data, valid_data = torch.utils.data.random_split(data_train, (0.8, 0.2))
 #%%
@@ -53,3 +53,8 @@ valid_loader = DataLoader(dataset = valid_data,
                           batch_size = batch_size,
                           shuffle = False,
                           num_workers = 0)
+#%%
+net = model.UNet(num_channels)
+loss_function = torch.nn.BCELoss()
+optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=0.0001)
+#%%
