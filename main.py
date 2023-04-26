@@ -14,7 +14,7 @@ import model
 root_dir = './EM_ISBI_Challenge/'
 batch_size = 16
 lr = 0.0001
-epochs = 10
+epochs = 5
 num_channels = 16
 
 if torch.cuda.is_available():
@@ -65,12 +65,12 @@ train_loss_all = []
 valid_loss_all = []
 train_acc_all = []
 valid_acc_all = []
-epochs=1
 
 n_train = len(train_loader)
 n_valid = len(valid_loader)
 for epoch in range(epochs):
     train_loss = 0
+    train_acc = 0
     net.train()
     for x_batch, y_batch in train_loader:
         optimizer.zero_grad()
@@ -80,19 +80,20 @@ for epoch in range(epochs):
         train_loss += loss.item()
         loss.backward()
         optimizer.step()
-        train_acc = accuracy(y_pred, y_batch)
+        train_acc += accuracy(y_pred, y_batch)
     train_loss_all.append(train_loss/n_train)
     train_acc_all.append(train_acc/n_train)
     net.eval()
 
     valid_loss = 0
+    valid_acc = 0
     with torch.no_grad():
         for x_batch, y_batch in valid_loader:
             output = net.forward(x_batch)
             y_pred = output[:,1:2,:,:]
             val_loss = loss_function(y_pred, y_batch)
             valid_loss += val_loss.item()
-            valid_acc = accuracy(y_pred, y_batch)
+            valid_acc += accuracy(y_pred, y_batch)
     valid_loss_all.append(valid_loss/n_valid)
     valid_acc_all.append(valid_acc/n_valid)
 
@@ -100,3 +101,4 @@ for epoch in range(epochs):
 
     print(f'Epoch {epoch} done, train_loss={train_loss_all[epoch]}, valid_loss={valid_loss_all[epoch]}, \
           train_acc={train_acc_all[epoch]}, valid_acc={valid_acc_all[epoch]}')
+# %%
