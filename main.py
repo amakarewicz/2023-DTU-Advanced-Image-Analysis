@@ -5,16 +5,17 @@ import torch
 import torchvision.transforms as transforms
 from torchgeometry.losses import dice
 from torch.utils.data import DataLoader
-from torchmetrics.classification import BinaryAccuracy
-
+from torchmetrics.classification import BinaryAccuracy, BinaryF1Score
+import pandas as pd
 # custom modules
 import data
 import model
+import train
 #%% set up
 root_dir = './EM_ISBI_Challenge/'
 batch_size = 16
 lr = 0.0001
-epochs = 5
+epochs = 15
 num_channels = 16
 
 if torch.cuda.is_available():
@@ -43,7 +44,15 @@ data_train = data.DataHandler(
     return_patches=True,
     img_trans=img_trans,
     lab_trans=lab_trans)
+
+data_test = data.DataHandler(
+    root_dir=root_dir,
+    subset='test',
+    return_patches=True,
+    img_trans=img_trans,
+    lab_trans=lab_trans)
 #%%
+torch.manual_seed(123)
 train_data, valid_data = torch.utils.data.random_split(data_train, (0.8, 0.2))
 #%%
 # dataloaders
@@ -55,50 +64,33 @@ valid_loader = DataLoader(dataset = valid_data,
                           batch_size = batch_size,
                           shuffle = False,
                           num_workers = 0)
+# ! different set-up
+test_loader = DataLoader(dataset = data_test,
+                         batch_size = int(batch_size/4),
+                         shuffle = True,
+                         num_workers = 0)
 #%%
 net = model.UNet(num_channels)
 loss_function = torch.nn.BCELoss()
-accuracy = BinaryAccuracy()
 optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=0.0001)
 #%%
-train_loss_all = []
-valid_loss_all = []
-train_acc_all = []
-valid_acc_all = []
+net, output = train.train_validation_loop(net, train_loader, valid_loader, epochs, optimizer, loss_function)
+output_pd = pd.DataFrame(output)
+output_pd.to_csv(f'results/results_{num_channels}_ch.csv', index=False)
+#%%
+for i, batch in enumerate(test_loader):
+    x_batch, _ = batch
+    y_pred = net.forward(x_batch)
+    m = x_batch.shape[0]
 
-n_train = len(train_loader)
-n_valid = len(valid_loader)
-for epoch in range(epochs):
-    train_loss = 0
-    train_acc = 0
-    net.train()
-    for x_batch, y_batch in train_loader:
-        optimizer.zero_grad()
-        output = net.forward(x_batch)
-        y_pred = output[:,1:2,:,:]
-        loss = loss_function(y_pred, y_batch)
-        train_loss += loss.item()
-        loss.backward()
-        optimizer.step()
-        train_acc += accuracy(y_pred, y_batch)
-    train_loss_all.append(train_loss/n_train)
-    train_acc_all.append(train_acc/n_train)
-    net.eval()
-
-    valid_loss = 0
-    valid_acc = 0
-    with torch.no_grad():
-        for x_batch, y_batch in valid_loader:
-            output = net.forward(x_batch)
-            y_pred = output[:,1:2,:,:]
-            val_loss = loss_function(y_pred, y_batch)
-            valid_loss += val_loss.item()
-            valid_acc += accuracy(y_pred, y_batch)
-    valid_loss_all.append(valid_loss/n_valid)
-    valid_acc_all.append(valid_acc/n_valid)
-
-    # TODO: EarlyStopping
-
-    print(f'Epoch {epoch} done, train_loss={train_loss_all[epoch]}, valid_loss={valid_loss_all[epoch]}, \
-          train_acc={train_acc_all[epoch]}, valid_acc={valid_acc_all[epoch]}')
-# %%
+    fig, ax = plt.subplots(m,2,figsize=(8,3.5*m))
+    for i in range(m):
+        ax[i][0].imshow(x_batch[i,0,:,:].detach().numpy())
+        ax[i][0].set_title("Patch")
+        # ax[i][1].imshow(np.round(t[i,0,:,:].detach().numpy()))
+        # ax[i][1].set_title("True Segmentation")
+        ax[i][1].imshow(np.round(y_pred[i,1,:,:].detach().numpy()))
+        ax[i][1].set_title("UNet Segmentation")
+    plt.tight_layout()
+    plt.show()
+    break

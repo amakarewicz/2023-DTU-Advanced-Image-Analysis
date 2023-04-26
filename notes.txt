@@ -1,0 +1,23 @@
+# # TODO: EarlyStopping
+# min_val_loss = np.inf
+# epochs_no_improvement = 0
+# patience = 5
+# if valid_loss_all[epoch] < min_val_loss:
+#     epochs_no_improvement = 0
+#     min_val_loss = valid_loss_all[epoch]
+# # TODO: add saving a checkpoint (so the net before overfitting returned)
+# else: epochs_no_improvement += 1
+# if epochs_no_improvement == patience:
+#     print('Early stopping')
+#     break
+
+# %% TODO
+# loss and accuracy loss (maybe add F1score/precision/recall)
+# prediction on test set (+some examples to show)
+# without augmentation + two different ones (DL report)
+# different numbers of channels (with Early stopping to see possible overfitting) [16,32,64]
+# different learning rates
+# different batch sizes?
+
+# https://pythonguides.com/pytorch-early-stopping/
+# https://machinelearningmastery.com/managing-a-pytorch-training-process-with-checkpoints-and-early-stopping/
