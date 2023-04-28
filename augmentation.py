@@ -36,7 +36,7 @@ img_trans_2 = transforms.Compose([transforms.ToPILImage(),
                                   transforms.RandomRotation(degrees = 30),
                                   transforms.CenterCrop((96,96)),
                                   transforms.RandomHorizontalFlip(p=0.3),
-                                  transforms.RandomVerticalFlip(p=0.3),
+                                  transforms.RandomVerticalFlip(p=0.2),
                                   transforms.ToTensor(),
                                   transforms.Normalize((0),(1)),
                                   AddGaussianNoise(std=0.05)

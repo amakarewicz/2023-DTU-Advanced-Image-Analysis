@@ -1,5 +1,6 @@
 import torch
 from torchmetrics.classification import BinaryAccuracy, BinaryF1Score
+import numpy as np
 
 accuracy = BinaryAccuracy()
 f1score = BinaryF1Score()
@@ -51,7 +52,9 @@ def train_validation_loop(net, train_loader, valid_loader, epochs, optimizer, lo
     train_loss_all, valid_loss_all = [], []
     train_acc_all, valid_acc_all = [], []
     train_f1_all, valid_f1_all = [], []
-
+    min_val_loss = np.inf
+    epochs_no_improvement = 0
+    patience = 5
     for epoch in range(epochs):
         net, train_out = training(net, train_loader, optimizer, loss_function)
         train_loss_all.append(train_out['train_loss'])
@@ -66,6 +69,17 @@ def train_validation_loop(net, train_loader, valid_loader, epochs, optimizer, lo
 
         print(f'Epoch {epoch+1}/{epochs} done, train_loss={train_loss_all[epoch]}, valid_loss={valid_loss_all[epoch]}, \
               train_acc={train_acc_all[epoch]}, valid_acc={valid_acc_all[epoch]}')
+        
+        if epoch >= 5:
+        # # TODO: EarlyStopping
+            if valid_loss_all[epoch] < min_val_loss:
+                epochs_no_improvement = 0
+                min_val_loss = valid_loss_all[epoch]
+            # TODO: add saving a checkpoint (so the net before overfitting returned)
+            else: epochs_no_improvement += 1
+            if epochs_no_improvement == patience:
+                print('Early stopping')
+                break
 
     return net, {'train_loss': train_loss_all,
                  'train_acc': train_acc_all,

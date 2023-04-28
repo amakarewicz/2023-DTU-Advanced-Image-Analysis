@@ -14,7 +14,7 @@ root_dir = './EM_ISBI_Challenge/'
 # BATCH_SIZE = [32,64]
 batch_size = 32
 LR = [1e-3, 1e-4, 1e-5]
-epochs = 3
+epochs = 50
 NUM_CHANNELS = [16,32,64]
 
 #%%
