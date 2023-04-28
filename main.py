@@ -48,9 +48,9 @@ data_train = data.DataHandler(
 data_test = data.DataHandler(
     root_dir=root_dir,
     subset='test',
-    return_patches=True,
-    img_trans=img_trans,
-    lab_trans=lab_trans)
+    return_patches=True) # no augmentation for the test set!
+    # img_trans=img_trans,
+    # lab_trans=lab_trans)
 #%%
 torch.manual_seed(123)
 train_data, valid_data = torch.utils.data.random_split(data_train, (0.8, 0.2))

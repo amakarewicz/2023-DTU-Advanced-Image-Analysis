@@ -14,6 +14,7 @@ def training(net, loader, optimizer, loss_function):
         optimizer.zero_grad()
         output = net.forward(x_batch)
         y_pred = output[:,1:2,:,:]
+        y_batch = torch.round(y_batch)
         loss = loss_function(y_pred, y_batch)
         train_loss += loss.item()
         loss.backward()
@@ -35,6 +36,7 @@ def validation(net, loader, loss_function):
         for x_batch, y_batch in loader:
             output = net.forward(x_batch)
             y_pred = output[:,1:2,:,:]
+            y_batch = torch.round(y_batch)
             val_loss = loss_function(y_pred, y_batch)
             valid_loss += val_loss.item()
             valid_acc += accuracy(y_pred, y_batch).item()
