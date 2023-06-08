@@ -13,12 +13,12 @@ import augmentation
 root_dir = './EM_ISBI_Challenge/'
 # BATCH_SIZE = [32,64]
 batch_size = 32
-LR = [1e-3, 1e-4, 1e-5]
-epochs = 50
-NUM_CHANNELS = [16,32,64]
+LR = [3e-4]#, 1e-4] # [1e-3, 1e-5, 
+epochs = 200
+NUM_CHANNELS = [32] # [16,32]#
 
 #%%
-for i, (img_trans, lab_trans) in tqdm(enumerate(zip(augmentation.IMG_TRANS, augmentation.LAB_TRANS)), desc='trans', position=0):
+for i, (img_trans, lab_trans) in tqdm(enumerate(zip(augmentation.IMG_TRANS[2:], augmentation.LAB_TRANS[2:])), desc='trans', position=0):
     data_train = data.DataHandler(
         root_dir=root_dir,
         subset='train',
@@ -37,11 +37,12 @@ for i, (img_trans, lab_trans) in tqdm(enumerate(zip(augmentation.IMG_TRANS, augm
                             num_workers = 0)
     for lr in tqdm(LR, desc="lr", position=1):
         for num_channels in tqdm(NUM_CHANNELS, desc="ch", position=2):
+            print(lr, num_channels, i)
             net = model.UNet(num_channels)
             loss_function = torch.nn.BCELoss()
             optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=0.0001)
 
             net, output = train.train_validation_loop(net, train_loader, valid_loader, epochs, optimizer, loss_function)
             output_pd = pd.DataFrame(output)
-            output_pd.to_csv(f'results/results_{i+1}_trans_{num_channels}_ch_{lr:.0e}_lr.csv', index=False)
+            output_pd.to_csv(f'results/results_{epochs}_epochs{i+3}_trans_{num_channels}_ch_{lr:.0e}_lr.csv', index=False)
 # %%

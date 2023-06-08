@@ -54,7 +54,7 @@ def train_validation_loop(net, train_loader, valid_loader, epochs, optimizer, lo
     train_f1_all, valid_f1_all = [], []
     min_val_loss = np.inf
     epochs_no_improvement = 0
-    patience = 5
+    patience = 10
     for epoch in range(epochs):
         net, train_out = training(net, train_loader, optimizer, loss_function)
         train_loss_all.append(train_out['train_loss'])

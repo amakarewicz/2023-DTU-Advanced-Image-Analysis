@@ -12,12 +12,12 @@
 #     break
 
 # %% TODO
-# loss and accuracy loss (maybe add F1score/precision/recall)
-# prediction on test set (+some examples to show)
-# without augmentation + two different ones (DL report)
-# different numbers of channels (with Early stopping to see possible overfitting) [16,32,64]
-# different learning rates
-# different batch sizes?
+# loss and accuracy loss (maybe add F1score/precision/recall) DONE
+# prediction on test set (+some examples to show) DONE
+# without augmentation + two different ones (DL report) DONE
+# different numbers of channels (with Early stopping to see possible overfitting) [16,32,64] DONE
+# different learning rates DONE
+# different batch sizes? DONE
 
 # https://pythonguides.com/pytorch-early-stopping/
 # https://machinelearningmastery.com/managing-a-pytorch-training-process-with-checkpoints-and-early-stopping/
